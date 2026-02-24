@@ -13,6 +13,11 @@
       background: #000;
       overflow: hidden;
     }
+    a {
+      display: block;
+      height: 100%;
+      width: 100%;
+    }
     img {
       position: fixed;
       top: 50%;
@@ -24,11 +29,13 @@
       transform: translate(-50%, -50%);
       object-fit: contain;
       display: block;
+      cursor: pointer;
     }
-    
   </style>
 </head>
 <body>
-  <img src="image.jpg">
+  <a href="https://www.instagram.com/meekergrant/" target="_blank">
+    <img src="image.jpg" alt="Grant">
+  </a>
 </body>
 </html>
