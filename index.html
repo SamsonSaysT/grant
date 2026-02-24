@@ -42,34 +42,40 @@ canvas {
 #mobileControls {
   display: none;
   position: fixed;
-  bottom: 30px;
+  bottom: 60px; /* tasteful spacing from bottom */
   left: 50%;
   transform: translateX(-50%);
-  z-index: 10;
+  z-index: 20;
 }
 
 .controls-grid {
   display: grid;
-  grid-template-columns: 70px 70px 70px;
-  grid-template-rows: 70px 70px;
-  gap: 10px;
+  grid-template-columns: 75px 75px 75px;
+  grid-template-rows: 75px 75px;
+  gap: 12px;
+  justify-items: center;
+  align-items: center;
 }
 
 .control-btn {
-  width: 70px;
-  height: 70px;
-  background: rgba(255,255,255,0.15);
-  border: 2px solid rgba(255,255,255,0.4);
-  border-radius: 15px;
+  width: 75px;
+  height: 75px;
+  background: rgba(255,255,255,0.12);
+  border: 2px solid rgba(255,255,255,0.35);
+  border-radius: 18px;
   color: white;
-  font-size: 28px;
-  backdrop-filter: blur(8px);
+  font-size: 30px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: transform 0.1s ease;
 }
 
 .control-btn:active {
-  background: rgba(255,255,255,0.35);
+  background: rgba(255,255,255,0.3);
+  transform: scale(0.92);
 }
 
+  
 /* Show arrows only on touch devices */
 @media (hover: none) and (pointer: coarse) {
   #mobileControls {
