@@ -10,21 +10,77 @@ html, body {
   margin: 0;
   padding: 0;
   overflow: hidden;
-  background: #000;
   height: 100%;
   width: 100%;
+  background: #000 url("image.jpg") center center no-repeat;
+  background-size: contain;
 }
 
+/* Game canvas */
 canvas {
   position: fixed;
   inset: 0;
   display: block;
+  background: transparent;
+}
+
+/* Mobile controls (hidden by default) */
+#mobileControls {
+  display: none;
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+}
+
+.controls-grid {
+  display: grid;
+  grid-template-columns: 70px 70px 70px;
+  grid-template-rows: 70px 70px;
+  gap: 10px;
+  justify-items: center;
+  align-items: center;
+}
+
+.control-btn {
+  width: 70px;
+  height: 70px;
+  background: rgba(255,255,255,0.15);
+  border: 2px solid rgba(255,255,255,0.4);
+  border-radius: 15px;
+  color: white;
+  font-size: 28px;
+  backdrop-filter: blur(8px);
+}
+
+.control-btn:active {
+  background: rgba(255,255,255,0.35);
+}
+
+/* Show controls only on touch devices */
+@media (hover: none) and (pointer: coarse) {
+  #mobileControls {
+    display: block;
+  }
 }
 </style>
 </head>
 <body>
 
 <canvas id="game"></canvas>
+
+<!-- Mobile arrow controls -->
+<div id="mobileControls">
+  <div class="controls-grid">
+    <div></div>
+    <button class="control-btn" id="up">▲</button>
+    <div></div>
+    <button class="control-btn" id="left">◀</button>
+    <button class="control-btn" id="down">▼</button>
+    <button class="control-btn" id="right">▶</button>
+  </div>
+</div>
 
 <script>
 const canvas = document.getElementById("game");
@@ -33,6 +89,7 @@ const ctx = canvas.getContext("2d");
 function resize() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
+  updateGrid();
 }
 window.addEventListener("resize", resize);
 resize();
@@ -44,18 +101,14 @@ function updateGrid() {
   cols = Math.floor(canvas.width / cellSize);
   rows = Math.floor(canvas.height / cellSize);
 }
-updateGrid();
 
-window.addEventListener("resize", updateGrid);
-
-let snake, direction, nextDirection, food, score;
+let snake, direction, nextDirection, food;
 
 function resetGame() {
   snake = [{ x: Math.floor(cols/2), y: Math.floor(rows/2) }];
   direction = { x: 1, y: 0 };
   nextDirection = { x: 1, y: 0 };
   placeFood();
-  score = 0;
 }
 
 function placeFood() {
@@ -73,9 +126,11 @@ function gameLoop() {
     y: snake[0].y + direction.y
   };
 
-  // Wall collision
-  if (head.x < 0 || head.x >= cols || head.y < 0 || head.y >= rows ||
-      snake.some(s => s.x === head.x && s.y === head.y)) {
+  if (
+    head.x < 0 || head.x >= cols ||
+    head.y < 0 || head.y >= rows ||
+    snake.some(s => s.x === head.x && s.y === head.y)
+  ) {
     resetGame();
     return;
   }
@@ -83,7 +138,6 @@ function gameLoop() {
   snake.unshift(head);
 
   if (head.x === food.x && head.y === food.y) {
-    score++;
     placeFood();
   } else {
     snake.pop();
@@ -93,21 +147,20 @@ function gameLoop() {
 }
 
 function draw() {
-  ctx.fillStyle = "#000";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   // Snake
-  ctx.fillStyle = "#fff";
+  ctx.fillStyle = "white";
   snake.forEach(part => {
     ctx.fillRect(part.x * cellSize, part.y * cellSize, cellSize-1, cellSize-1);
   });
 
   // Food
-  ctx.fillStyle = "#0f0";
+  ctx.fillStyle = "lime";
   ctx.fillRect(food.x * cellSize, food.y * cellSize, cellSize-1, cellSize-1);
 }
 
-// Desktop controls
+// Desktop keyboard controls
 window.addEventListener("keydown", e => {
   if (e.key === "ArrowUp" && direction.y !== 1)
     nextDirection = { x: 0, y: -1 };
@@ -119,30 +172,19 @@ window.addEventListener("keydown", e => {
     nextDirection = { x: 1, y: 0 };
 });
 
-// Mobile tap controls (tap screen halves)
-canvas.addEventListener("click", e => {
-  const x = e.clientX;
-  const y = e.clientY;
-
-  const horizontal = x < canvas.width / 2 ? "left" : "right";
-  const vertical = y < canvas.height / 2 ? "up" : "down";
-
-  // Determine dominant direction based on distance from center
-  const dx = x - canvas.width/2;
-  const dy = y - canvas.height/2;
-
-  if (Math.abs(dx) > Math.abs(dy)) {
-    if (horizontal === "left" && direction.x !== 1)
-      nextDirection = { x: -1, y: 0 };
-    if (horizontal === "right" && direction.x !== -1)
-      nextDirection = { x: 1, y: 0 };
-  } else {
-    if (vertical === "up" && direction.y !== 1)
-      nextDirection = { x: 0, y: -1 };
-    if (vertical === "down" && direction.y !== -1)
-      nextDirection = { x: 0, y: 1 };
-  }
-});
+// Mobile button controls
+document.getElementById("up").onclick = () => {
+  if (direction.y !== 1) nextDirection = { x: 0, y: -1 };
+};
+document.getElementById("down").onclick = () => {
+  if (direction.y !== -1) nextDirection = { x: 0, y: 1 };
+};
+document.getElementById("left").onclick = () => {
+  if (direction.x !== 1) nextDirection = { x: -1, y: 0 };
+};
+document.getElementById("right").onclick = () => {
+  if (direction.x !== -1) nextDirection = { x: 1, y: 0 };
+};
 
 resetGame();
 setInterval(gameLoop, 100);
