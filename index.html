@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Snake</title>
+<title>Grant</title>
 
 <style>
 html, body {
@@ -12,19 +12,33 @@ html, body {
   overflow: hidden;
   height: 100%;
   width: 100%;
-  background: #000 url("image.jpg") center center no-repeat;
-  background-size: contain;
+  background: black;
 }
 
-/* Game canvas */
+/* Center image without stretching */
+#bgImage {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Game canvas overlay */
 canvas {
   position: fixed;
   inset: 0;
   display: block;
+  z-index: 5;
   background: transparent;
 }
 
-/* Mobile controls (hidden by default) */
+/* Mobile controls */
 #mobileControls {
   display: none;
   position: fixed;
@@ -39,8 +53,6 @@ canvas {
   grid-template-columns: 70px 70px 70px;
   grid-template-rows: 70px 70px;
   gap: 10px;
-  justify-items: center;
-  align-items: center;
 }
 
 .control-btn {
@@ -58,7 +70,7 @@ canvas {
   background: rgba(255,255,255,0.35);
 }
 
-/* Show controls only on touch devices */
+/* Show arrows only on touch devices */
 @media (hover: none) and (pointer: coarse) {
   #mobileControls {
     display: block;
@@ -68,9 +80,13 @@ canvas {
 </head>
 <body>
 
+<!-- Background image -->
+<img id="bgImage" src="image.jpg" alt="Background">
+
+<!-- Game canvas -->
 <canvas id="game"></canvas>
 
-<!-- Mobile arrow controls -->
+<!-- Mobile arrows -->
 <div id="mobileControls">
   <div class="controls-grid">
     <div></div>
@@ -89,18 +105,14 @@ const ctx = canvas.getContext("2d");
 function resize() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
-  updateGrid();
-}
-window.addEventListener("resize", resize);
-resize();
-
-const cellSize = 20;
-let cols, rows;
-
-function updateGrid() {
   cols = Math.floor(canvas.width / cellSize);
   rows = Math.floor(canvas.height / cellSize);
 }
+window.addEventListener("resize", resize);
+
+const cellSize = 20;
+let cols, rows;
+resize();
 
 let snake, direction, nextDirection, food;
 
@@ -149,18 +161,16 @@ function gameLoop() {
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Snake
   ctx.fillStyle = "white";
   snake.forEach(part => {
     ctx.fillRect(part.x * cellSize, part.y * cellSize, cellSize-1, cellSize-1);
   });
 
-  // Food
   ctx.fillStyle = "lime";
   ctx.fillRect(food.x * cellSize, food.y * cellSize, cellSize-1, cellSize-1);
 }
 
-// Desktop keyboard controls
+/* Desktop controls */
 window.addEventListener("keydown", e => {
   if (e.key === "ArrowUp" && direction.y !== 1)
     nextDirection = { x: 0, y: -1 };
@@ -172,7 +182,7 @@ window.addEventListener("keydown", e => {
     nextDirection = { x: 1, y: 0 };
 });
 
-// Mobile button controls
+/* Mobile controls */
 document.getElementById("up").onclick = () => {
   if (direction.y !== 1) nextDirection = { x: 0, y: -1 };
 };
